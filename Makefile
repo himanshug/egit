@@ -1,13 +1,14 @@
 CC = cc 
 
-CFLAGS=-g -O2 -Wall -Wextra -Isrc/lib -rdynamic -DNDEBUG $(OPTFLAGS)
+#CFLAGS=-g -O2 -Wall -Wextra -Isrc/lib -rdynamic -DNDEBUG $(OPTFLAGS)
+CFLAGS=-g -O2 -Isrc/lib -rdynamic -DNDEBUG $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
 
 LIB_SOURCES=$(wildcard src/lib/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(LIB_SOURCES))
 
-BIN_SOURCES=$(wildcard src/main/*.c)
+BIN_SOURCES=src/main/git.c
 BINS=$(patsubst %.c,%,$(BIN_SOURCES))
 
 TEST_SOURCES=$(wildcard src/test/*.c)
