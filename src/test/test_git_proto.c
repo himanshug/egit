@@ -3,7 +3,7 @@
 
 #include "git_proto.c"
 
-int test_read_pkt_line() {
+void* test_read_pkt_line() {
     int p[2];
     if(pipe(p)) {
         die(1, "couldn't create pipe");
@@ -41,11 +41,54 @@ int test_read_pkt_line() {
     }
 }
 
+void* test_write_pkt_line() {
+    int p[2];
+    if(pipe(p)) {
+        die(1, "couldn't create pipe");
+    }
+
+    int pid = fork();
+    if(pid != 0) {
+        /* parent process */
+        close(p[1]);
+        int len;
+
+        len = 6;
+        read(p[0], buffer, len);
+        mu_assert(!memcmp("0006a\n",buffer,len), "test1 failed");
+
+        len = 5;
+        read(p[0], buffer, len);
+        mu_assert(!memcmp("0005a",buffer,len), "test2 failed");
+
+        len = 11;
+        read(p[0], buffer, len);
+        mu_assert(!memcmp("000bfoobar\n",buffer,len), "test3 failed");
+
+        len = 4;
+        read(p[0], buffer, len);
+        mu_assert(!memcmp("0004",buffer,len), "test4 failed");
+
+        close(p[0]);
+    } else {
+        /* child process */
+        close(p[0]);
+
+        write_pkt_line(p[1], "a\n");
+        write_pkt_line(p[1], "a");
+        write_pkt_line(p[1], "foobar\n");
+        write_pkt_line(p[1], "");
+
+        close(p[1]);
+        exit(0);
+    }
+}
 /* add your tests here */
 char *all_tests() {
     mu_suite_start();
 
     mu_run_test(test_read_pkt_line);
+    mu_run_test(test_write_pkt_line);
 
     return NULL;
 }
