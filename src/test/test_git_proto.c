@@ -10,8 +10,8 @@ int test_read_pkt_line() {
     }
 
     int pid = fork();
-    if(pid == 0) {
-        /* child process */
+    if(pid != 0) {
+        /* parent process */
         close(p[1]);
         int len;
 
@@ -28,9 +28,8 @@ int test_read_pkt_line() {
         mu_assert(len == 0, "test failed");
 
         close(p[0]);
-        exit(0);
     } else {
-        /* parent process */
+        /* child process */
         close(p[0]);
         write(p[1], "0006a\n", 6);
         write(p[1], "0005a", 5);
@@ -38,9 +37,8 @@ int test_read_pkt_line() {
         write(p[1], "0004", 4);
 
         close(p[1]);
+        exit(0);
     }
-
-    return 0;
 }
 
 /* add your tests here */
