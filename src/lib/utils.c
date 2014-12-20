@@ -24,3 +24,13 @@ int ends_with(const char *str, const char *suffix) {
     size_t str_len = strlen(str);
     return str_len < suffix_len ? 0 : strncmp(str + str_len - suffix_len, suffix, suffix_len) == 0;
 }
+
+void read_n(const int fd, const void *buff, const int n) {
+    int len = 0;
+    while(len != n) {
+        int l = read(fd, (buff+len), n-len);
+        if(l <= 0)
+            die(1, "failed to read file descriptor");
+        len += l;
+    }
+}

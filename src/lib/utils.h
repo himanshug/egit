@@ -15,4 +15,7 @@ void die(int code, char *msg);
 int starts_with(const char *str, const char *prefix);
 int ends_with(const char *str, const char *suffix);
 
+/* blocking call, read exactly n chars from file descriptor */
+void read_n(const int fd, const void *buff, const int n);
+
 #endif /* UTILS_H_ */
