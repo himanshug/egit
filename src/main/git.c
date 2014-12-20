@@ -28,9 +28,10 @@ int connect_to_host(char *host, int port) {
 }
 
 void read_to_end(int fd) {
-    int len = 0;
-    while((len = read_pkt_line(fd)) > 0) {
-        write(1, buffer, len);
+    struct ref_spec* rs = read_ref_advertisement(fd);
+    while(rs != NULL) {
+        printf("%s %s\n", rs->commit, rs->ref);
+        rs = rs->next;
     }
 }
 
