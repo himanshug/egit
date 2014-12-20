@@ -7,7 +7,7 @@
 
 #include "utils.h"
 
-#include "helpers.c"
+#include "git_proto.c"
 
 /* returns connected socket descriptor or -1 for error */
 int connect_to_host(char *host, int port) {
