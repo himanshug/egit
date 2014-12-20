@@ -43,9 +43,11 @@ int main(int argc, int *argv[]) {
 
     int fd = connect_to_host(host, port);
     send_proto_request(fd, host, repo);
-    //read_ref_announcement(fd);
-    read_to_end(fd);
-    send_flush_pkt(fd);
+    struct ref_spec* rs = read_ref_advertisement(fd);
+    send_negotiation_request(fd, rs);
+    read_pack_file(fd, "/tmp/packfile");
+    //read_to_end(fd);
+    //send_flush_pkt(fd);
 //    send_negotiation_request(fd);
 //    read_pack_file(fd); //stores pack file in /tmp
     close(fd);

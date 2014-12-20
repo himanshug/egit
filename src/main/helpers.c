@@ -1,5 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include "utils.h"
 
 #define COMMIT_HASH_LEN 40
 #define MAX_REF_NAME_LEN 256
@@ -34,8 +38,9 @@ int read_pkt_line(int fd) {
         read_n_chars(fd, buffer, len);
 
     //do not consider newline character in the end
-    if(buffer[len] == '\n') len -= 1;
+    if(buffer[len-1] == '\n') len -= 1;
 
+    buffer[len] = '\0';
     return len;
 }
 
@@ -85,4 +90,37 @@ struct ref_spec* read_ref_advertisement(int fd) {
 
 int send_flush_pkt(int fd) {
     return dprintf(fd, "0000");
+}
+
+int send_negotiation_request(int fd, struct ref_spec* spec) {
+    sprintf(buffer, "want %s %s\n", spec->commit,
+            "multi_ack_detailed side-band-64k thin-pack ofs-delta agent=git/1.8.2");
+    write_pkt_line(fd, buffer);
+
+    struct ref_spec* curr = spec->next;
+    while(curr != NULL) {
+        if(!ends_with(curr->ref,"^{}") &&
+                (starts_with(curr->ref,"refs/heads/") || starts_with(curr->ref,"refs/tags/"))) {
+            sprintf(buffer, "want %s\n", spec->commit);
+            write_pkt_line(fd, buffer);
+        }
+        curr = curr->next;
+    }
+    send_flush_pkt(fd);
+}
+
+void read_pack_file(int fd, char *path) {
+    int pcfile_fd = open(path, O_CREAT, O_WRONLY);
+
+    int len;
+    while((len = read_pkt_line(fd)) > 0) {
+        if(buffer[0] == '1') {
+            //it is pack file data
+            write(pcfile_fd, buffer, len);
+        } else {
+            //other information
+            dprintf(STD_ERR, "remote: %s\n", buffer);
+        }
+    }
+    close(pcfile_fd);
 }
