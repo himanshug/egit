@@ -18,24 +18,14 @@ struct ref_spec {
     struct ref_spec *next;
 };
 
-void read_n_chars(int fd, char *buff, int n) {
-    int len = 0;
-    while(len != n) {
-        int l = read(fd, (buff+len), n-len);
-        if(l <= 0)
-            die(3, "failed to read file descriptor");
-        len += l;
-    }
-}
-
 int read_pkt_line(int fd) {
-    read_n_chars(fd, buffer, 4);
+    read_n(fd, buffer, 4);
     buffer[4] = '\0';
     int len = strtol(buffer, NULL, 16);
 
     len -= 4;
     if(len > 0)
-        read_n_chars(fd, buffer, len);
+        read_n(fd, buffer, len);
 
     //do not consider newline character in the end
     if(buffer[len-1] == '\n') len -= 1;
