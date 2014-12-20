@@ -13,24 +13,24 @@
 char buffer[BUFFER_LEN];
 
 struct ref_spec {
-    char commit[COMMIT_HASH_LEN + 1];
+    char commit[COMMIT_HASH_LEN];
+
+    //on instantiation ref must be pointing to a valid NUL
+    //terminated C string
     char ref[MAX_REF_NAME_LEN];
-    struct ref_spec *next;
+
+    struct ref_spec* next;
 };
 
 int read_pkt_line(int fd) {
     read_n(fd, buffer, 4);
-    buffer[4] = '\0';
+    buffer[4] = CHAR_NULL;
     int len = strtol(buffer, NULL, 16);
 
     len -= 4;
     if(len > 0)
         read_n(fd, buffer, len);
 
-    //do not consider newline character in the end
-    if(buffer[len-1] == '\n') len -= 1;
-
-    buffer[len] = '\0';
     return len;
 }
 
@@ -51,30 +51,25 @@ struct ref_spec* read_ref_advertisement(int fd) {
         die(1, "couldn't allocate memory for ref_spec struct");
 
     memcpy(first->commit, buffer, COMMIT_HASH_LEN);
-    *(first->commit+COMMIT_HASH_LEN) = '\0';
-    int i;
-    char *p = buffer + COMMIT_HASH_LEN + 1; //last 1 is for the SPACE char
-    for(i = 0;;i++) {
-        char c = *(p+i);
-        if(c == '\0')
-            break;
-        *((first->ref)+i) = c;
-    }
-    *((first->ref)+i) = '\0';
+    strcpy(first->ref, buffer+COMMIT_HASH_LEN+1);
 
     struct ref_spec* prev = first;
     while((len = read_pkt_line(fd)) > 0) {
-        struct ref_spec* curr = (struct ref_spec*)malloc(sizeof(struct ref_spec));
+        struct ref_spec* curr = malloc(sizeof(struct ref_spec));
         if(curr == NULL)
             die(1, "couldn't allocate memory for ref_spec struct");
         memcpy(curr->commit, buffer, COMMIT_HASH_LEN);
-        *(curr->commit+COMMIT_HASH_LEN) = '\0';
-        memcpy(curr->ref, buffer + COMMIT_HASH_LEN + 1, len - COMMIT_HASH_LEN - 1);
-         *(curr->ref+(len - COMMIT_HASH_LEN - 1)) = '\0';
+
+        if(buffer[len-1] == CHAR_LF)
+            buffer[len-1] = CHAR_NULL;
+        else
+            buffer[len] = CHAR_NULL;
+        strcpy(curr->ref, buffer + COMMIT_HASH_LEN + 1);
 
         prev->next = curr;
         prev = curr;
     }
+
     return first;
 }
 
@@ -83,7 +78,7 @@ int send_flush_pkt(int fd) {
 }
 
 int send_negotiation_request(int fd, struct ref_spec* spec) {
-    sprintf(buffer, "want %s %s\n", spec->commit,
+    sprintf(buffer, "want %.*s %s\n", COMMIT_HASH_LEN, spec->commit,
             "multi_ack_detailed side-band-64k thin-pack ofs-delta agent=git/1.8.2");
     write_pkt_line(fd, buffer);
 
@@ -91,7 +86,7 @@ int send_negotiation_request(int fd, struct ref_spec* spec) {
     while(curr != NULL) {
         if(!ends_with(curr->ref,"^{}") &&
                 (starts_with(curr->ref,"refs/heads/") || starts_with(curr->ref,"refs/tags/"))) {
-            sprintf(buffer, "want %s\n", spec->commit);
+            sprintf(buffer, "want %.*s\n", COMMIT_HASH_LEN, spec->commit);
             write_pkt_line(fd, buffer);
         }
         curr = curr->next;
@@ -109,6 +104,7 @@ void read_pack_file(int fd, char *path) {
             write(pcfile_fd, buffer, len);
         } else {
             //other information
+            buffer[len] = CHAR_NULL;
             dprintf(STD_ERR, "remote: %s\n", buffer);
         }
     }

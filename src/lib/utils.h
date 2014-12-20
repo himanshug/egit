@@ -4,6 +4,8 @@
 #include <errno.h>
 #include <stdio.h>
 
+#define CHAR_NULL '\0'
+#define CHAR_LF '\n'
 
 #define STD_IN 0
 #define STD_OUT 1
