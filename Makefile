@@ -1,7 +1,7 @@
 CC = cc 
 
 #CFLAGS=-g -O2 -Wall -Wextra -Isrc/lib -rdynamic -DNDEBUG $(OPTFLAGS)
-CFLAGS=-g -O2 -Isrc/lib -rdynamic -DNDEBUG $(OPTFLAGS)
+CFLAGS=-g -O2 -Isrc/lib -Isrc/main -rdynamic -DNDEBUG $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
 
@@ -38,3 +38,4 @@ clean:
 test: CFLAGS += $(TARGET)
 test:
 	for i in $(TESTS); do cc $$i.c -o $$i $(CFLAGS); done
+	src/test/runtests.sh
