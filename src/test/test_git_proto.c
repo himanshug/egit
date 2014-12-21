@@ -83,12 +83,33 @@ void* test_write_pkt_line() {
         exit(0);
     }
 }
+
+void* test_read_ref_advertisement() {
+    int fd = open("res/test/sample_ref_advertisement", O_RDONLY);
+    struct ref_spec* curr = read_ref_advertisement(fd);
+
+    mu_assert(!memcmp("3b1031798a00fdf9b574b5857b1721bc4b0e6bac",curr->commit, COMMIT_HASH_LEN), "test11 failed");
+    mu_assert(!strcmp("HEAD",curr->ref), "test12 failed");
+
+    curr = curr->next;
+    mu_assert(!memcmp("3b1031798a00fdf9b574b5857b1721bc4b0e6bac",curr->commit, COMMIT_HASH_LEN), "test21 failed");
+    mu_assert(!strcmp("refs/heads/master",curr->ref), "test22 failed");
+
+    curr = curr->next;
+    mu_assert(!memcmp("c4bf7555e2eb4a2b55c7404c742e7e95017ec850",curr->commit, COMMIT_HASH_LEN), "test31 failed");
+    mu_assert(!strcmp("refs/remotes/origin/master",curr->ref), "test32 failed");
+
+    curr = curr->next;
+    mu_assert(curr == NULL , "test4 failed");
+}
+
 /* add your tests here */
 char *all_tests() {
     mu_suite_start();
 
     mu_run_test(test_read_pkt_line);
     mu_run_test(test_write_pkt_line);
+    mu_run_test(test_read_ref_advertisement);
 
     return NULL;
 }

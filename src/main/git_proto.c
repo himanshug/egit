@@ -77,36 +77,43 @@ int send_flush_pkt(int fd) {
     return dprintf(fd, "0000");
 }
 
-int send_negotiation_request(int fd, struct ref_spec* spec) {
-    sprintf(buffer, "want %.*s %s\n", COMMIT_HASH_LEN, spec->commit,
-            "multi_ack_detailed side-band-64k thin-pack ofs-delta agent=git/1.8.2");
-    write_pkt_line(fd, buffer);
-
-    struct ref_spec* curr = spec->next;
+void send_negotiation_request(int fd, struct ref_spec* spec) {
+    int first = 0;
+    struct ref_spec* curr = spec;
     while(curr != NULL) {
         if(!ends_with(curr->ref,"^{}") &&
                 (starts_with(curr->ref,"refs/heads/") || starts_with(curr->ref,"refs/tags/"))) {
-            sprintf(buffer, "want %.*s\n", COMMIT_HASH_LEN, spec->commit);
-            write_pkt_line(fd, buffer);
+
+            if(first == 0) {
+                sprintf(buffer, "want %.*s %s\n", COMMIT_HASH_LEN, spec->commit,
+                    "multi_ack_detailed side-band-64k thin-pack ofs-delta agent=git/1.8.2");
+                first++;
+            } else
+                sprintf(buffer, "want %.*s\n", COMMIT_HASH_LEN, spec->commit);
+                write_pkt_line(fd, buffer);
         }
         curr = curr->next;
     }
     send_flush_pkt(fd);
+    sprintf(buffer, "done\n");
+    write_pkt_line(fd, buffer);
 }
 
 void read_pack_file(int fd, char *path) {
-    int pcfile_fd = open(path, O_CREAT, O_WRONLY);
+    int pcfile_fd = open(path, O_CREAT | O_WRONLY, S_IRWXU);
+    if(pcfile_fd < 0)
+        die(1, "couldn't create packfile");
 
     int len;
     while((len = read_pkt_line(fd)) > 0) {
-        if(buffer[0] == '1') {
+        if(buffer[0] == 1) {
             //it is pack file data
             write(pcfile_fd, buffer, len);
         } else {
             //other information
-            buffer[len] = CHAR_NULL;
-            dprintf(STD_ERR, "remote: %s\n", buffer);
+            dprintf(STD_ERR, "remote: %.*s\n", len, buffer);
         }
     }
+    fsync(pcfile_fd);
     close(pcfile_fd);
 }
