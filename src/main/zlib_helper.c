@@ -30,7 +30,10 @@
 #  define SET_BINARY_MODE(file)
 #endif
 
-#define CHUNK 16384
+/* It is important to keep CHUNK size to 1 or else functions here might end
+ * up reading more data from the stream beyond the compressed data boundary.
+ */
+#define CHUNK 1
 
 /* Compress from file source to file dest until EOF on source.
    def() returns Z_OK on success, Z_MEM_ERROR if memory could not be
