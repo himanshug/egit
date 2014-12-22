@@ -20,4 +20,7 @@ int ends_with(const char *str, const char *suffix);
 /* blocking call, read exactly n chars from file descriptor */
 void read_n(const int fd, const void *buff, const int n);
 
+/* read n bytes from given file stream */
+void fread_n(const FILE* f, const void *buff, const int n);
+
 #endif /* UTILS_H_ */

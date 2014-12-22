@@ -2,6 +2,8 @@
 #include "utils.h"
 #endif
 
+#include <stdio.h>
+
 void die(int code, char *msg) {
     if(!errno) {
         perror(msg);
@@ -31,6 +33,16 @@ void read_n(const int fd, const void *buff, const int n) {
         int l = read(fd, (buff+len), n-len);
         if(l <= 0)
             die(1, "failed to read file descriptor");
+        len += l;
+    }
+}
+
+void fread_n(const FILE* f, const void *buff, const int n) {
+    int len = 0;
+    while(len != n) {
+        int l = fread(buff+len, 1, n-len, f);
+        if(l <= 0)
+            die(1, "failed to read file stream");
         len += l;
     }
 }
