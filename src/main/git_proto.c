@@ -166,7 +166,7 @@ void parse_pack_file(char *path) {
 
         char is_msb_set = tmp & 0x80;
         char obj_type = (tmp >> 4) & 0x07;
-
+        printf("hello1\n");
         //CAUTION: this is assuming that git object size can fit inside 32 bits
         //is this assumption correct?
         uint32_t obj_size = (tmp & 0x0f);
@@ -180,18 +180,20 @@ void parse_pack_file(char *path) {
         debug("parsing object of type %d , size %d", obj_type, obj_size);
 
         FILE* dest;
+        char path[256];
         switch(obj_type) {
         case OBJ_COMMIT :
         case OBJ_TREE :
         case OBJ_BLOB :
         case OBJ_TAG :
-            dest = fopen("/tmp/test/o1", "w+b");
+            sprintf(path, "/tmp/test/o%d", i);
+            dest = fopen(path, "w+b");
             if(dest == NULL)
                 die(1, "couldn't open dest file");
             inf(pf, dest);
             fflush(dest);
             fclose(dest);
-            exit(0);
+            break;
         case OBJ_OFS_DELTA :
         case OBJ_REF_DELTA :
             printf("Its a deltified object");

@@ -53,5 +53,5 @@ int main(int argc, int *argv[]) {
     close(fd);
     */
 
-    parse_pack_file("/tmp/packfile");
+    parse_pack_file("/home/himanshu/tmp/testrepo/.git/objects/pack/pack-2939f90622fb5c569272ba930bb502964b014741.pack");
 }
