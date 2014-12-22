@@ -36,7 +36,7 @@ void read_to_end(int fd) {
 }
 
 int main(int argc, int *argv[]) {
-
+/*
     char *host = "localhost";
     int port = 9418;
     char *repo = "testrepo";
@@ -51,4 +51,7 @@ int main(int argc, int *argv[]) {
 //    send_negotiation_request(fd);
 //    read_pack_file(fd); //stores pack file in /tmp
     close(fd);
+    */
+
+    parse_pack_file("/tmp/packfile");
 }
