@@ -11,16 +11,16 @@ int main(int argc, char *argv[]) {
         print_help();
     }
 
-    fprintf(stderr, "%s file %s\n", argv[1], argv[2]);
-
     FILE* f = fopen(argv[2], "rb");
     if(f == NULL) {
         fprintf(stderr, "Failed to open file %s\n", argv[2]);
     }
 
     if(strcmp(argv[1], "inflate") == 0) {
+        fprintf(stderr, "inflating file %s\n", argv[2]);
         inf(f, stdout);
     } else if (strcmp(argv[1], "deflate") == 0) {
+        fprintf(stderr, "deflating file %s\n", argv[2]);
         def(f, stdout);
     } else {
         print_help();
