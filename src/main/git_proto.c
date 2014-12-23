@@ -166,7 +166,6 @@ void parse_pack_file(char *path) {
 
         char is_msb_set = tmp & 0x80;
         char obj_type = (tmp >> 4) & 0x07;
-        printf("hello1\n");
         //CAUTION: this is assuming that git object size can fit inside 32 bits
         //is this assumption correct?
         uint32_t obj_size = (tmp & 0x0f);
@@ -187,19 +186,20 @@ void parse_pack_file(char *path) {
 
         switch(obj_type) {
         case OBJ_COMMIT :
-            sprintf(buffer, "commit %d\0", obj_size);
+            sprintf(buffer, "commit %d", obj_size);
         case OBJ_TREE :
-            sprintf(buffer, "tree %d\0", obj_size);
+            sprintf(buffer, "commit %d", obj_size);
         case OBJ_BLOB :
-            sprintf(buffer, "blob %d\0", obj_size);
+            sprintf(buffer, "commit %d", obj_size);
         case OBJ_TAG :
-            sprintf(buffer, "tag %d\0", obj_size);
+            sprintf(buffer, "commit %d", obj_size);
 
             fwrite(buffer, strlen(buffer), 1, dest);
+            fwrite("\0", 1, 1, dest);
             inf(pf, dest);
-
-
-
+            fseek(dest, 0, SEEK_SET); //go to beginning of dest stream
+            char *hash = calc_sha1(dest);
+            printf("sha1 is %.*s\n", COMMIT_HASH_LEN, hash);
 
             sprintf(buffer, "/tmp/test/o%d", i);
             encodedDest = fopen(buffer, "w+b");
@@ -209,9 +209,6 @@ void parse_pack_file(char *path) {
             fseek(dest, 0, SEEK_SET); //go to beginning of dest stream
             def(dest, encodedDest);
 
-            fseek(encodedDest, 0, SEEK_SET);
-            char *hash = calc_sha1(encodedDest);
-            printf("sha1 is %s\n", hash);
             fclose(dest);
 
             fflush(encodedDest);
