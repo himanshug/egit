@@ -1,15 +1,15 @@
 CC = cc 
 
 #-lz is for libz.so providing zlib
-#CFLAGS=-g -O2 -Wall -Wextra -Isrc/lib -lz -rdynamic -DNDEBUG $(OPTFLAGS)
-CFLAGS=-g -O2 -Isrc/lib -Isrc/main -lz -rdynamic $(OPTFLAGS)
+#CFLAGS=-g -O2 -Wall -Wextra -Isrc/lib -lz -lcrypto -rdynamic -DNDEBUG $(OPTFLAGS)
+CFLAGS=-g -O2 -Isrc/lib -Isrc/main -lz -lcrypto -rdynamic $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
 
 LIB_SOURCES=$(wildcard src/lib/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(LIB_SOURCES))
 
-BIN_SOURCES=src/main/git.c
+BIN_SOURCES=src/main/git.c	src/main/zlib.c
 BINS=$(patsubst %.c,%,$(BIN_SOURCES))
 
 TEST_SOURCES=$(wildcard src/test/*.c)
