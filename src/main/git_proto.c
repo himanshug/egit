@@ -5,12 +5,12 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-#include <netinet/in.h> //for ntohl() function
+#include <stdint.h>
 
 #include "dbg.h"
 #include "utils.h"
 #include "zlib_helper.c"
+#include "sha1_helper.c"
 
 #define OBJ_COMMIT 1
 #define OBJ_TREE 2
@@ -180,23 +180,47 @@ void parse_pack_file(char *path) {
         debug("parsing object of type %d , size %d", obj_type, obj_size);
 
         FILE* dest;
-        char path[256];
+        FILE* encodedDest;
+        dest = tmpfile();
+        if(dest == NULL)
+            die(1, "couldn't open dest file");
+
         switch(obj_type) {
         case OBJ_COMMIT :
+            sprintf(buffer, "commit %d\0", obj_size);
         case OBJ_TREE :
+            sprintf(buffer, "tree %d\0", obj_size);
         case OBJ_BLOB :
+            sprintf(buffer, "blob %d\0", obj_size);
         case OBJ_TAG :
-            sprintf(path, "/tmp/test/o%d", i);
-            dest = fopen(path, "w+b");
-            if(dest == NULL)
-                die(1, "couldn't open dest file");
+            sprintf(buffer, "tag %d\0", obj_size);
+
+            fwrite(buffer, strlen(buffer), 1, dest);
             inf(pf, dest);
-            fflush(dest);
+
+
+
+
+            sprintf(buffer, "/tmp/test/o%d", i);
+            encodedDest = fopen(buffer, "w+b");
+            if(encodedDest == NULL)
+                die(1, "couldn't open encodedDest file");
+
+            fseek(dest, 0, SEEK_SET); //go to beginning of dest stream
+            def(dest, encodedDest);
+
+            fseek(encodedDest, 0, SEEK_SET);
+            char *hash = calc_sha1(encodedDest);
+            printf("sha1 is %s\n", hash);
             fclose(dest);
+
+            fflush(encodedDest);
+            fclose(encodedDest);
             break;
         case OBJ_OFS_DELTA :
         case OBJ_REF_DELTA :
             printf("Its a deltified object");
+            exit(1);
             break;
         default:
             fprintf(stderr, "Unknown object type %d\n", obj_type);

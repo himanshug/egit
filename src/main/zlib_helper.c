@@ -41,7 +41,7 @@
    level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
-int def(FILE *source, FILE *dest, int level)
+int def(FILE *source, FILE *dest)
 {
     int ret, flush;
     unsigned have;
@@ -53,7 +53,7 @@ int def(FILE *source, FILE *dest, int level)
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
-    ret = deflateInit(&strm, level);
+    ret = deflateInit(&strm, Z_BEST_COMPRESSION);
     if (ret != Z_OK)
         return ret;
 
