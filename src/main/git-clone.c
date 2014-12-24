@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include <stdint.h>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+
 #include "dbg.h"
 #include "utils.h"
 #include "zlib_helper.c"
