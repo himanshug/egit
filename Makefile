@@ -9,7 +9,7 @@ PREFIX?=/usr/local
 LIB_SOURCES=$(wildcard src/lib/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(LIB_SOURCES))
 
-BIN_SOURCES=src/main/git.c	src/main/git-init-db.c	src/main/zlib.c
+BIN_SOURCES=src/main/git.c	src/main/git-init-db.c	src/main/git-unpack-objects.c	src/main/zlib.c
 BINS=$(patsubst %.c,%,$(BIN_SOURCES))
 
 TEST_SOURCES=$(wildcard src/test/*.c)

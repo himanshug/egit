@@ -12,13 +12,6 @@
 #include "zlib_helper.c"
 #include "sha1_helper.c"
 
-#define OBJ_COMMIT 1
-#define OBJ_TREE 2
-#define OBJ_BLOB 3
-#define OBJ_TAG 4
-#define OBJ_OFS_DELTA 5
-#define OBJ_REF_DELTA 6
-
 #define COMMIT_HASH_LEN 40
 #define MAX_REF_NAME_LEN 256
 
@@ -130,102 +123,6 @@ void read_pack_file(int fd, char *path) {
     }
     fsync(pcfile_fd);
     close(pcfile_fd);
-}
-
-uint32_t uint32_from_big_endian(char *buff) {
-    uint32_t byte3 = buff[0] << 24;
-    uint32_t byte2 = buff[1] << 16;
-    uint32_t byte1 = buff[2] << 8;
-    uint32_t byte0 = buff[3];
-    return (byte0 | byte1 | byte2 | byte3);
-}
-
-void parse_pack_file(char *path) {
-    debug("parsing packfile %s", path);
-
-    FILE *pf = fopen(path, "rb");
-    if(pf == NULL)
-        die(1, "couldn't open pack file");
-
-    // packet file header
-    fread_n(pf, buffer, 4);
-    if(memcmp(buffer, "PACK", 4) != 0)
-        die(1, "invalid pack file, 1st 4 bytes are not PACK");
-
-    fseek(pf, 4, SEEK_CUR); //skip packfile version
-
-    fread_n(pf, buffer, 4);
-    uint32_t num_objects = uint32_from_big_endian(buffer);
-    debug("found %d objects in the pack file", num_objects);
-
-    uint32_t i;
-    for(i = 0; i < num_objects; i++) {
-        //parse each object
-        fread_n(pf, buffer, 1);
-        char tmp = buffer[0];
-
-        char is_msb_set = tmp & 0x80;
-        char obj_type = (tmp >> 4) & 0x07;
-        //CAUTION: this is assuming that git object size can fit inside 32 bits
-        //is this assumption correct?
-        uint32_t obj_size = (tmp & 0x0f);
-        uint32_t shift = 4;
-        while(tmp & 0x80) { //if MSB is set
-            fread_n(pf, buffer, 1);
-            tmp = buffer[0];
-            obj_size += (tmp & 0x7f) << shift; //0'd the MSB bit
-            shift += 7;
-        }
-        debug("parsing object of type %d , size %d", obj_type, obj_size);
-
-        FILE* dest;
-        FILE* encodedDest;
-        dest = tmpfile();
-        if(dest == NULL)
-            die(1, "couldn't open dest file");
-
-        switch(obj_type) {
-        case OBJ_COMMIT :
-            sprintf(buffer, "commit %d", obj_size);
-        case OBJ_TREE :
-            sprintf(buffer, "commit %d", obj_size);
-        case OBJ_BLOB :
-            sprintf(buffer, "commit %d", obj_size);
-        case OBJ_TAG :
-            sprintf(buffer, "commit %d", obj_size);
-
-            fwrite(buffer, strlen(buffer), 1, dest);
-            fwrite("\0", 1, 1, dest);
-            inf(pf, dest);
-            fseek(dest, 0, SEEK_SET); //go to beginning of dest stream
-            char *hash = calc_sha1(dest);
-            printf("sha1 is %.*s\n", COMMIT_HASH_LEN, hash);
-
-            sprintf(buffer, "/tmp/test/o%d", i);
-            encodedDest = fopen(buffer, "w+b");
-            if(encodedDest == NULL)
-                die(1, "couldn't open encodedDest file");
-
-            fseek(dest, 0, SEEK_SET); //go to beginning of dest stream
-            def(dest, encodedDest);
-
-            fclose(dest);
-
-            fflush(encodedDest);
-            fclose(encodedDest);
-            break;
-        case OBJ_OFS_DELTA :
-        case OBJ_REF_DELTA :
-            printf("Its a deltified object");
-            exit(1);
-            break;
-        default:
-            fprintf(stderr, "Unknown object type %d\n", obj_type);
-            exit(1);
-        }
-
-
-    }
 }
 
 #endif

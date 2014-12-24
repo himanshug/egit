@@ -25,7 +25,7 @@ char* calc_sha1(FILE *f) {
     }
     SHA1_Final(md, &context);
 
-    char *hashstr = malloc(2*SHA_DIGEST_LENGTH);
+    static char hashstr[2*SHA_DIGEST_LENGTH];
     if(hashstr == NULL)
         die(1, "memory error");
 

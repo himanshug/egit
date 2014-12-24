@@ -3,6 +3,7 @@
 #endif
 
 #include <stdio.h>
+#include <sys/stat.h>
 
 void die(int code, char *msg) {
     if(!errno) {
@@ -11,6 +12,14 @@ void die(int code, char *msg) {
         printf("Error: %s\n", msg);
     }
     exit(code);
+}
+
+uint32_t uint32_from_big_endian(char *buff) {
+    uint32_t byte3 = buff[0] << 24;
+    uint32_t byte2 = buff[1] << 16;
+    uint32_t byte1 = buff[2] << 8;
+    uint32_t byte0 = buff[3];
+    return (byte0 | byte1 | byte2 | byte3);
 }
 
 /* checks if str starts with prefix */
@@ -44,5 +53,13 @@ void fread_n(const FILE* f, const void *buff, const int n) {
         if(l <= 0)
             die(1, "failed to read file stream");
         len += l;
+    }
+}
+
+void create_dir_if_not_exists(char *path) {
+    struct stat buf;
+    if(stat(path,&buf) != 0 && mkdir(path, S_IRWXU | S_IRWXG) < 0) {
+        fprintf(stderr, "failed to create dir[%s].\n", path);
+        exit(123);
     }
 }
