@@ -17,8 +17,7 @@ void write_to_object_db(FILE* f) {
 
     sprintf(buffer, ".git/objects/%.*s/%.*s", 2, hash, 38, hash+2);
     FILE* encodedObj = fopen(buffer, "w+b");
-    if(encodedObj == NULL)
-        die(1, "failed to create object db file");
+    check_die(encodedObj != NULL, 1, "failed to create file %s", buffer);
 
     fseek(f, 0, SEEK_SET);
     def(f, encodedObj);
@@ -31,14 +30,12 @@ void parse_pack_file(char *path) {
     debug("parsing packfile %s", path);
 
     FILE *pf = fopen(path, "rb");
-    if(pf == NULL)
-        die(1, "couldn't open pack file");
+    check_die(pf != NULL, 1, "couldn't open pack file %s", path);
 
     /* 12 bytes packet file header */
     /* 4 bytes PACK literal, 4 bytes version, 4 bytes count of objects */
     fread_n(pf, buffer, 4);
-    if(memcmp(buffer, "PACK", 4) != 0)
-        die(1, "invalid pack file, 1st 4 bytes are not PACK");
+    check_die((memcmp(buffer, "PACK", 4) == 0), 1, "invalid pack file, 1st 4 bytes are not PACK");
 
     fseek(pf, 4, SEEK_CUR); //skip packfile version
 
@@ -72,16 +69,14 @@ void parse_pack_file(char *path) {
          * "encoded" object to be stored in .git/objects/info/ */
 
         //TODO: add support for deltified objects in the packfile
-        if(obj_type > OBJ_TAG) {
-            die(1, "deltified objects are not supported yet");
-        }
+        check_die(obj_type <= OBJ_TAG, 1, "deltified objects are not supported yet");
+
         char *object_type_str[] = {"commit", "tree", "blob", "tag"};
 
         FILE* dest;
         FILE* encodedDest;
         dest = tmpfile();
-        if(dest == NULL)
-            die(1, "couldn't open dest file");
+        check_die(dest != NULL, 1, "couldn't open dest file");
 
         fprintf(dest,"%s %d", object_type_str[obj_type-1], obj_size);
         fwrite("\0", 1, 1, dest);

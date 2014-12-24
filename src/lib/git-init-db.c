@@ -28,19 +28,13 @@ cat .git/HEAD
 ref: refs/heads/master
  */
 
-#define DIR_CREATE_ERR 1
-#define FILE_CREATE_ERR 2
-
 static char buffer[4096];
 
 void create_dirs(char *base, char *paths[], int size) {
     int i;
     for(i = 0; i < size; i++) {
         sprintf(buffer, "%s/%s", base, paths[i]);
-        if(mkdir(buffer, S_IRWXU | S_IRWXG) < 0) {
-            fprintf(stderr, "failed to create dir [%s]\n", buffer);
-            exit(DIR_CREATE_ERR);
-        }
+        check_die(mkdir(buffer, S_IRWXU | S_IRWXG) >= 0, 1, "failed to create dir [%s]\n", buffer);
     }
 }
 
@@ -49,10 +43,8 @@ void create_files(char *base, char *paths[], int size) {
     for(i = 0; i < size; i++) {
         sprintf(buffer, "%s/%s", base, paths[i]);
         FILE *f = fopen(buffer, "w+");
-        if(f == NULL) {
-            fprintf(stderr, "failed to create file [%s]\n", buffer);
-            exit(FILE_CREATE_ERR);
-        } else fclose(f);
+        check_die(f == NULL, 1, "failed to create file [%s]\n", buffer);
+        fclose(f);
     }
 }
 

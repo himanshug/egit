@@ -2,7 +2,7 @@
 #include <openssl/sha.h>
 #include <stdint.h>
 
-#include "utils.h"
+#include "dbg.h"
 
 #define SHA1_DIGEST_LEN 20
 
@@ -23,8 +23,7 @@ char* calc_sha1(FILE *f) {
     SHA1_Final(md, &context);
 
     static char hashstr[2*SHA_DIGEST_LENGTH];
-    if(hashstr == NULL)
-        die(1, "memory error");
+    check_die(hashstr != NULL, 1, "memory error");
 
     //encode to base 16 and return
     int i;

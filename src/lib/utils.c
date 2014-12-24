@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+/*
 void die(int code, char *msg) {
     if(!errno) {
         perror(msg);
@@ -13,6 +14,7 @@ void die(int code, char *msg) {
     }
     exit(code);
 }
+*/
 
 uint32_t uint32_from_big_endian(char *buff) {
     uint32_t byte3 = buff[0] << 24;
@@ -40,8 +42,7 @@ void read_n(const int fd, const void *buff, const int n) {
     int len = 0;
     while(len != n) {
         int l = read(fd, (buff+len), n-len);
-        if(l <= 0)
-            die(1, "failed to read file descriptor");
+        check_die(l > 0, 1, "failed to read file descriptor");
         len += l;
     }
 }
@@ -50,8 +51,7 @@ void fread_n(const FILE* f, const void *buff, const int n) {
     int len = 0;
     while(len != n) {
         int l = fread(buff+len, 1, n-len, f);
-        if(l <= 0)
-            die(1, "failed to read file stream");
+        check_die(l > 0, 1, "failed to read file stream");
         len += l;
     }
 }

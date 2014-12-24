@@ -34,18 +34,17 @@ struct ref_spec {
 /* returns connected socket descriptor or -1 for error */
 int connect_to_host(char *host, int port) {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
-    if(fd < 0) die(1,"couldn't create socket");
+    check_die(fd >= 0, 1,"couldn't create socket");
 
     struct sockaddr_in name;
     name.sin_family = AF_INET;
     name.sin_port = htons(port);
 
     struct hostent *hostinfo = gethostbyname(host);
-    if(hostinfo == NULL)
-        die(2, "couldn't find server host info");
+    check_die(hostinfo != NULL, 2, "couldn't find server host info");
 
     name.sin_addr = *((struct in_addr *)hostinfo->h_addr);
-    if(connect(fd, (struct sockaddr *)&name, sizeof(name)) < 0) die(1,"coundn't bind socket");
+    check_die(connect(fd, (struct sockaddr *)&name, sizeof(name)) >= 0, 1,"coundn't bind socket");
     return fd;
 }
 
@@ -74,8 +73,7 @@ int send_proto_request(int fd, char *host, char *repo) {
 struct ref_spec* read_ref_advertisement(int fd) {
     int len = read_pkt_line(fd);
     struct ref_spec *first = malloc(sizeof(struct ref_spec));
-    if(first == NULL)
-        die(1, "couldn't allocate memory for ref_spec struct");
+    check_die(first != NULL, 1, "couldn't allocate memory for ref_spec struct");
 
     memcpy(first->commit, buffer, COMMIT_HASH_LEN);
     strcpy(first->ref, buffer+COMMIT_HASH_LEN+1);
@@ -83,8 +81,7 @@ struct ref_spec* read_ref_advertisement(int fd) {
     struct ref_spec* prev = first;
     while((len = read_pkt_line(fd)) > 0) {
         struct ref_spec* curr = malloc(sizeof(struct ref_spec));
-        if(curr == NULL)
-            die(1, "couldn't allocate memory for ref_spec struct");
+        check_die(curr != NULL, 1, "couldn't allocate memory for ref_spec struct");
         memcpy(curr->commit, buffer, COMMIT_HASH_LEN);
 
         if(buffer[len-1] == CHAR_LF)
@@ -128,8 +125,7 @@ void send_negotiation_request(int fd, struct ref_spec* spec) {
 
 void read_pack_file(int fd, char *path) {
     int pcfile_fd = open(path, O_CREAT | O_WRONLY, S_IRWXU);
-    if(pcfile_fd < 0)
-        die(1, "couldn't create packfile");
+    check_die(pcfile_fd >= 0, 1, "couldn't create packfile");
 
     int len;
     while((len = read_pkt_line(fd)) > 0) {
@@ -157,16 +153,14 @@ void create_refs(struct ref_spec *refs) {
         } else continue;
 
         FILE* f = fopen(buffer, "w+b");
-        if(f == NULL)
-            die(1, "failed to create ref");
+        check_die(f != NULL, 1, "failed to create ref");
         fwrite(curr->commit, COMMIT_HASH_LEN, 1, f);
         fflush(f);
         fclose(f);
 
         if(strcmp(curr->ref, "refs/heads/master") == 0) {
             f = fopen(".git/refs/heads/master", "w+b");
-            if(f == NULL)
-                die(1, "failed to create master ref");
+            check_die(f != NULL, 1, "failed to create master ref");
             fwrite(curr->commit, COMMIT_HASH_LEN, 1, f);
             fflush(f);
             fclose(f);
@@ -193,8 +187,7 @@ int main(int argc, char *argv[]) {
 
     //we have got the pack file and ref spec
     init_db(repo);
-    if(chdir(repo) != 0)
-        die(1, "failed to switch to newly created repo directory");
+    check_die(chdir(repo) == 0, 1, "failed to switch to newly created repo directory");
 
     parse_pack_file(packfile);
     create_refs(rs);
