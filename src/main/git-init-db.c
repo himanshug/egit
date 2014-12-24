@@ -1,3 +1,5 @@
+#include "git-init-db.h"
+
 #include <stdlib.h>
 #include <sys/stat.h>
 

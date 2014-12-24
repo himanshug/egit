@@ -6,7 +6,7 @@ CFLAGS=-g -O2 -Isrc/lib -Isrc/main -lz -lcrypto -rdynamic $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
 
-LIB_SOURCES=$(wildcard src/lib/*.c)
+LIB_SOURCES=$(wildcard src/lib/*.c)	src/main/git-init-db.c	src/main/git-unpack-objects.c
 OBJECTS=$(patsubst %.c,%.o,$(LIB_SOURCES))
 
 BIN_SOURCES=src/main/git-clone.c	src/main/git-init-db.c	src/main/git-unpack-objects.c	src/main/zlib.c

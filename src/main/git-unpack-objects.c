@@ -1,3 +1,5 @@
+#include "git-unpack-objects.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>

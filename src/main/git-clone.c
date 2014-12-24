@@ -1,6 +1,3 @@
-#ifndef GIT_CLONE_C
-#define GIT_CLONE_C
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -9,11 +6,15 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 
 #include "dbg.h"
 #include "utils.h"
 #include "zlib_helper.c"
 #include "sha1_helper.c"
+
+#include "git-unpack-objects.h"
+#include "git-init-db.h"
 
 #define COMMIT_HASH_LEN 40
 #define MAX_REF_NAME_LEN 256
@@ -200,5 +201,3 @@ int main(int argc, char *argv[]) {
     parse_pack_file(packfile);
     create_refs(rs);
 }
-
-#endif
