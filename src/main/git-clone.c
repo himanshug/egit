@@ -186,6 +186,7 @@ int main(int argc, char *argv[]) {
     close(fd);
 
     //we have got the pack file and ref spec
+    check_die(mkdir(repo, S_IRWXU | S_IRWXG) >= 0, 1, "failed to create dir [%s]\n", repo);
     init_db(repo);
     check_die(chdir(repo) == 0, 1, "failed to switch to newly created repo directory");
 

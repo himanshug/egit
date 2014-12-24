@@ -43,7 +43,7 @@ void create_files(char *base, char *paths[], int size) {
     for(i = 0; i < size; i++) {
         sprintf(buffer, "%s/%s", base, paths[i]);
         FILE *f = fopen(buffer, "w+");
-        check_die(f == NULL, 1, "failed to create file [%s]\n", buffer);
+        check_die(f != NULL, 1, "failed to create file [%s]\n", buffer);
         fclose(f);
     }
 }
