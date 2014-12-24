@@ -125,4 +125,35 @@ void read_pack_file(int fd, char *path) {
     close(pcfile_fd);
 }
 
+void create_refs(struct ref_spec *refs) {
+    struct ref_spec* curr = refs;
+    while(curr != NULL) {
+        if(ends_with(curr->ref,"^{}")) continue;
+
+        if(starts_with(curr->ref, "refs/tags")) {
+            sprintf(buffer, ".git/%s", curr->ref);
+        } else if(starts_with(curr->ref, "refs/heads")) {
+            sprintf(buffer, ".git/refs/remotes/origin/%s", curr->ref+10);
+        } else continue;
+
+        FILE* f = fopen(buffer, "w+b");
+        if(f == NULL)
+            die(1, "failed to create ref");
+        fwrite(curr->commit, COMMIT_HASH_LEN, 1, f);
+        fflush(f);
+        fclose(f);
+
+        if(strcmp(curr->ref, "refs/heads/master") == 0) {
+            f = fopen(".git/refs/heads/master", "w+b");
+            if(f == NULL)
+                die(1, "failed to create master ref");
+            fwrite(curr->commit, COMMIT_HASH_LEN, 1, f);
+            fflush(f);
+            fclose(f);
+        }
+
+        curr = curr->next;
+    }
+}
+
 #endif
