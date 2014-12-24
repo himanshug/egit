@@ -1,6 +1,3 @@
-#ifndef ZLIB_HELPER_C
-#define ZLIB_HELPER_C
-
 /* Copied from http://www.zlib.net/zlib_how.html */
 
 /* zpipe.c: example of proper use of zlib's inflate() and deflate()
@@ -179,5 +176,3 @@ void zerr(int ret)
         fputs("zlib version mismatch!\n", stderr);
     }
 }
-
-#endif

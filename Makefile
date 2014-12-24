@@ -6,34 +6,25 @@ CFLAGS=-g -O2 -Isrc/lib -Isrc/main -lz -lcrypto -rdynamic $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
 
-LIB_SOURCES=$(wildcard src/lib/*.c)	src/main/git-init-db.c	src/main/git-unpack-objects.c
+LIB_SOURCES=$(wildcard src/lib/*.c)
+LIBS=$(patsubst %.c,%,$(LIB_SOURCES))
 OBJECTS=$(patsubst %.c,%.o,$(LIB_SOURCES))
 
-BIN_SOURCES=src/main/git-clone.c	src/main/git-init-db.c	src/main/git-unpack-objects.c	src/main/zlib.c
+BIN_SOURCES=$(wildcard src/main/*.c)
 BINS=$(patsubst %.c,%,$(BIN_SOURCES))
 
 TEST_SOURCES=$(wildcard src/test/*.c)
 TESTS=$(patsubst %.c,%,$(TEST_SOURCES))
 
-TARGET=build/libsrv.a
+#all: clean object bin test
+all: clean object bin
 
-# The Target Build
-#all: clean $(TARGET) bin test
-all: clean $(TARGET) bin
+object:
+	for i in $(LIBS); do cc -c $$i.c -o $$i.o $(CFLAGS); done
 
-$(TARGET): CFLAGS += -fPIC
-$(TARGET): build $(OBJECTS)
-	ar rcs $@ $(OBJECTS)
-	ranlib $@
-
-build:
-	@mkdir -p build
-
-bin: CFLAGS += $(TARGET)
 bin:
-	for i in $(BINS); do cc $$i.c -o $$i $(CFLAGS); done
+	for i in $(BINS); do cc $$i.c -o $$i $(OBJECTS) $(CFLAGS); done
 
-# The Cleaner
 clean:
 	rm -rf build $(OBJECTS) $(BINS) $(TESTS)
 

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "zlib_helper.c"
+#include "constants.h"
 
 void print_help() {
     fprintf(stderr, "Usage: zlib <inflate/deflate> </path/to/file>");
