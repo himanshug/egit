@@ -1,5 +1,5 @@
-#ifndef GIT_PROTO_C
-#define GIT_PROTO_C
+#ifndef GIT_CLONE_C
+#define GIT_CLONE_C
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,6 +28,24 @@ struct ref_spec {
 
     struct ref_spec* next;
 };
+
+/* returns connected socket descriptor or -1 for error */
+int connect_to_host(char *host, int port) {
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    if(fd < 0) die(1,"couldn't create socket");
+
+    struct sockaddr_in name;
+    name.sin_family = AF_INET;
+    name.sin_port = htons(port);
+
+    struct hostent *hostinfo = gethostbyname(host);
+    if(hostinfo == NULL)
+        die(2, "couldn't find server host info");
+
+    name.sin_addr = *((struct in_addr *)hostinfo->h_addr);
+    if(connect(fd, (struct sockaddr *)&name, sizeof(name)) < 0) die(1,"coundn't bind socket");
+    return fd;
+}
 
 int read_pkt_line(int fd) {
     read_n(fd, buffer, 4);
@@ -154,6 +172,30 @@ void create_refs(struct ref_spec *refs) {
 
         curr = curr->next;
     }
+}
+
+int main(int argc, char *argv[]) {
+    char *host = "localhost";
+    int port = 9418;
+    char *repo = "testrepo";
+
+    char *packfile = "/tmp/packfile";
+
+    int fd = connect_to_host(host, port);
+    send_proto_request(fd, host, repo);
+    struct ref_spec* rs = read_ref_advertisement(fd);
+    send_flush_pkt(fd);
+//    send_negotiation_request(fd, rs);
+//    read_pack_file(fd, packfile);
+    close(fd);
+
+    //we have got the pack file and ref spec
+    init_db(repo);
+    if(chdir(repo) != 0)
+        die(1, "failed to switch to newly created repo directory");
+
+    parse_pack_file(packfile);
+    create_refs(rs);
 }
 
 #endif
