@@ -10,8 +10,6 @@
 
 #include "dbg.h"
 #include "utils.h"
-#include "zlib_helper.c"
-#include "sha1_helper.c"
 
 #include "git-unpack-objects.h"
 #include "git-init-db.h"

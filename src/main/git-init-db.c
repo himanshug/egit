@@ -79,6 +79,8 @@ void init_db(char *base) {
     create_files(path, files, 4);
 }
 
+/*
 int main(int argc, char *argv[]) {
     init_db(argv[1]);
 }
+*/

@@ -8,9 +8,6 @@
 #include "utils.h"
 #include "constants.h"
 
-#include "sha1_helper.c"
-#include "zlib_helper.c"
-
 static char buffer[65536];
 
 void write_to_object_db(FILE* f) {
@@ -96,6 +93,7 @@ void parse_pack_file(char *path) {
     }
 }
 
+/*
 int main(int argc, char *argv[]) {
     if(argc < 2)
         fprintf(stderr, "Usage: git-unpack-objects </path/to/packfile>");
@@ -107,3 +105,4 @@ int main(int argc, char *argv[]) {
     else
         parse_pack_file(argv[1]);
 }
+*/
