@@ -69,6 +69,13 @@ void init_db(char *base) {
 
     char *files[] = {"config", "description", "HEAD", "info/exclude" };
     create_files(path, files, 4);
+
+    sprintf(buffer, "%s/HEAD", path);
+    FILE* head = fopen(buffer,"wb+");
+    check_die(head != NULL, 1, "failed to open %s", buffer);
+    fprintf(head, "ref: refs/heads/master\n");
+    fflush(head);
+    fclose(head);
 }
 
 /*

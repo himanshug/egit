@@ -142,8 +142,10 @@ void read_pack_file(int fd, char *path) {
 }
 
 void create_refs(struct ref_spec *refs) {
+    mkdir(".git/refs/remotes/origin", S_IRWXU | S_IRWXG);
+
     struct ref_spec* curr = refs;
-    while(curr != NULL) {
+    do {
         if(ends_with(curr->ref,"^{}")) continue;
 
         if(starts_with(curr->ref, "refs/tags")) {
@@ -153,8 +155,9 @@ void create_refs(struct ref_spec *refs) {
         } else continue;
 
         FILE* f = fopen(buffer, "w+b");
-        check_die(f != NULL, 1, "failed to create ref");
+        check_die(f != NULL, 1, "failed to create ref [%s]", buffer);
         fwrite(curr->commit, COMMIT_HASH_LEN, 1, f);
+        fwrite("\n", 1, 1, f);
         fflush(f);
         fclose(f);
 
@@ -162,12 +165,11 @@ void create_refs(struct ref_spec *refs) {
             f = fopen(".git/refs/heads/master", "w+b");
             check_die(f != NULL, 1, "failed to create master ref");
             fwrite(curr->commit, COMMIT_HASH_LEN, 1, f);
+            fwrite("\n", 1, 1, f);
             fflush(f);
             fclose(f);
         }
-
-        curr = curr->next;
-    }
+    } while((curr = curr->next) != NULL);
 }
 
 int main(int argc, char *argv[]) {
