@@ -27,4 +27,6 @@
 
 #define check_debug(A, M, ...) if(!(A)) { debug(M, ##__VA_ARGS__); errno=0; goto error; }
 
+#define check_die(A, C, M, ...) if(!(A)) { log_err(M, ##__VA_ARGS__); errno=0; exit(C); }
+
 #endif
