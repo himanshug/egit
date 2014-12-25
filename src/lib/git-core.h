@@ -20,6 +20,8 @@
 #define OBJ_BLOB_STR "blob"
 #define OBJ_TAG_STR "tag"
 
+#define TREE_ENTRY_MODE_LEN 6
+
 #define PARENT_DIR ".."
 
 const char *OBJ_TYPES[];
@@ -42,7 +44,7 @@ struct commit_obj {
 void parse_commit_obj(FILE* f, struct commit_obj* obj);
 
 struct tree_obj_entry {
-    char mode[6];
+    char mode[TREE_ENTRY_MODE_LEN];
     char sha1[SHA1_HEX_LEN];
     char path[256];
 };
@@ -51,5 +53,7 @@ void parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry);
 char *sha1_hex_str_to_filename(char *sha1);
 void write_file_to_object_db(FILE* f);
 FILE* open_file_from_object_db(char *sha1); //this returns the inflated stream
+
+void check_out();
 
 #endif /* GIT_CORE_H_ */

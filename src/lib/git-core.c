@@ -49,8 +49,9 @@ void write_file_to_object_db(FILE* f) {
 
 /* Returns inflated stream */
 FILE* open_file_from_object_db(char *sha1) {
-    FILE* f = fopen(sha1_hex_str_to_filename(sha1), "rb");
-    check_die(f != NULL, 1, "failed read open object-db file [%.*s]", SHA1_HEX_LEN, sha1);
+    char *fname = sha1_hex_str_to_filename(sha1);
+    FILE* f = fopen(fname, "rb");
+    check_die(f != NULL, 1, "failed to open object-db file [%.*s]", SHA1_HEX_LEN, sha1);
 
     FILE* tmp = tmpfile();
     check_die(tmp != NULL, 1, "failed to create tmp file");

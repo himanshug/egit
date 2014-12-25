@@ -13,6 +13,7 @@
 
 #include "git-unpack-objects.h"
 #include "git-init-db.h"
+#include "git-core.h"
 
 #define COMMIT_HASH_LEN 40
 #define MAX_REF_NAME_LEN 256
@@ -192,6 +193,6 @@ int main(int argc, char *argv[]) {
 
     parse_pack_file(packfile);
     create_refs(rs);
-
     //TODO : free the ref-spec at this time
+    check_out();
 }
