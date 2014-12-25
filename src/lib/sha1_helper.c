@@ -6,15 +6,15 @@
 
 #include "dbg.h"
 
-static const int BUFFER_LEN = 65536;
-static char buffer[BUFFER_LEN];
+const int BUFFER_LEN = 65536;
+static char buffer[65536];
 
-char *sha1_bytes_to_hex_str(char *bytes) {
+char *sha1_bytes_to_hex_str(unsigned char *bytes) {
     //encode to base 16 and return
     int i;
     for (i = 0; i < SHA1_NUM_BYTES; i++) {
          static char hex[] = "0123456789abcdef";
-         unsigned int val = bytes[i];
+         unsigned int val = 0x00000000 | bytes[i];
          char *pos = buffer + i*2;
          *pos++ = hex[val >> 4];
          *pos = hex[val & 0x0f];

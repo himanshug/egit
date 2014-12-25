@@ -26,6 +26,9 @@ void read_n(const int fd, const void *buff, const int n);
 /* read n bytes from given file stream */
 void fread_n(const FILE* f, const void *buff, const int n);
 
+/* read bytes till you see char end */
+int fread_till(const FILE* f, const void *buff, const char end);
+
 void create_dir_if_not_exists(char *path);
 
 #endif /* UTILS_H_ */

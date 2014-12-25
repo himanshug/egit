@@ -3,27 +3,32 @@
 
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
 
-const int OBJ_COMMIT_NUM=1;
-const int OBJ_TREE_NUM=2;
-const int OBJ_BLOB_NUM=3;
-const int OBJ_TAG_NUM=4;
-const int OBJ_OFS_DELTA_NUM=5;
-const int OBJ_REF_DELTA_NUM=6;
+#include "sha1_helper.h"
 
-const char* OBJ_COMMIT_STR = "commit";
-const char* OBJ_TREE_STR = "tree";
-const char* OBJ_BLOB_STR = "blob";
-const char* OBJ_TAG_STR = "tag";
+#define OBJ_COMMIT_NUM 1
+#define OBJ_TREE_NUM 2
+#define OBJ_BLOB_NUM 3
+#define OBJ_TAG_NUM 4
+#define OBJ_OFS_DELTA_NUM 5
+#define OBJ_REF_DELTA_NUM 6
 
-const char *OBJ_TYPES[] = { NULL, OBJ_COMMIT_STR, OBJ_TREE_STR, OBJ_BLOB_STR, OBJ_TAG_STR};
+#define OBJ_COMMIT_STR "commit"
+#define OBJ_TREE_STR "tree"
+#define OBJ_BLOB_STR "blob"
+#define OBJ_TAG_STR "tag"
 
-const int DIR_MODE = S_IRWXU | S_IRWXG;
+#define PARENT_DIR ".."
 
-const char *PARENT_DIR = "..";
+const char *OBJ_TYPES[];
+const int DIR_MODE;
 
-const char *GIT_HOME = ".git";
-const char *GIT_HEAD = ".git/HEAD";
+
+//
+//const char *GIT_HOME = ".git";
+//const char *GIT_HEAD = ".git/HEAD";
 
 struct obj_hdr {
     char type[32];

@@ -17,9 +17,7 @@
 #define COMMIT_HASH_LEN 40
 #define MAX_REF_NAME_LEN 256
 
-#define BUFFER_LEN 65536
-
-char buffer[BUFFER_LEN];
+static char buffer[65536];
 
 struct ref_spec {
     char commit[COMMIT_HASH_LEN];
@@ -194,4 +192,6 @@ int main(int argc, char *argv[]) {
 
     parse_pack_file(packfile);
     create_refs(rs);
+
+    //TODO : free the ref-spec at this time
 }

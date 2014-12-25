@@ -5,6 +5,9 @@
 
 #include "sha1_helper.h"
 
+const char *OBJ_TYPES[] = { NULL, OBJ_COMMIT_STR, OBJ_TREE_STR, OBJ_BLOB_STR, OBJ_TAG_STR };
+const int DIR_MODE = S_IRWXU | S_IRWXG;
+
 static char buffer[65536];
 
 void parse_obj_hdr(FILE* f, struct obj_hdr* hdr) {

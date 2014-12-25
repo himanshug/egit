@@ -30,5 +30,5 @@ clean:
 
 test: CFLAGS += $(TARGET)
 test:
-	for i in $(TESTS); do cc $$i.c -o $$i $(CFLAGS); done
+	for i in $(TESTS); do cc $$i.c -o $$i $(OBJECTS) $(CFLAGS); done
 	src/test/runtests.sh

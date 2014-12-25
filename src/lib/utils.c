@@ -56,6 +56,18 @@ void fread_n(const FILE* f, const void *buff, const int n) {
     }
 }
 
+int fread_till(const FILE* f, const void *buff, const char end) {
+    unsigned char ch;
+    int i;
+    for(i = 0; ; i++) {
+        ch = getc(f);
+        check_die(ch != EOF, 1, "premature end of file");
+        if(ch == end) break;
+        memcpy(buff+i, &ch, 1);
+    }
+    return i;
+}
+
 void create_dir_if_not_exists(char *path) {
     struct stat buf;
     if(stat(path,&buf) != 0 && mkdir(path, S_IRWXU | S_IRWXG) < 0) {
