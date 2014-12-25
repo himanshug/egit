@@ -1,38 +1,38 @@
+#include "sha1_helper.h"
+
 #include <stdlib.h>
 #include <openssl/sha.h>
 #include <stdint.h>
 
 #include "dbg.h"
 
-#define SHA1_DIGEST_LEN 20
+static const int BUFFER_LEN = 65536;
+static char buffer[BUFFER_LEN];
 
-#define SHA1_HELPER_BUFFER_LEN 65536
-
-char sha1_helper_buffer[SHA1_HELPER_BUFFER_LEN];
+char *sha1_bytes_to_hex_str(char *bytes) {
+    //encode to base 16 and return
+    int i;
+    for (i = 0; i < SHA1_NUM_BYTES; i++) {
+         static char hex[] = "0123456789abcdef";
+         unsigned int val = bytes[i];
+         char *pos = buffer + i*2;
+         *pos++ = hex[val >> 4];
+         *pos = hex[val & 0x0f];
+    }
+    return buffer;
+}
 
 char* calc_sha1(FILE *f) {
-    unsigned char md[SHA_DIGEST_LENGTH];
-    memset(md, 0, SHA_DIGEST_LENGTH);
+    static unsigned char md[SHA1_NUM_BYTES];
+    memset(md, 0, SHA1_NUM_BYTES);
 
     SHA_CTX context;
     SHA1_Init(&context);
     uint32_t len;
-    while((len = fread(sha1_helper_buffer, 1, SHA1_HELPER_BUFFER_LEN, f)) > 0) {
-        SHA1_Update(&context, sha1_helper_buffer, len);
+    while((len = fread(buffer, 1, BUFFER_LEN, f)) > 0) {
+        SHA1_Update(&context, buffer, len);
     }
     SHA1_Final(md, &context);
 
-    static char hashstr[2*SHA_DIGEST_LENGTH];
-    check_die(hashstr != NULL, 1, "memory error");
-
-    //encode to base 16 and return
-    int i;
-    for (i = 0; i < SHA_DIGEST_LENGTH; i++) {
-         static char hex[] = "0123456789abcdef";
-         unsigned int val = md[i];
-         char *pos = hashstr + i*2;
-         *pos++ = hex[val >> 4];
-         *pos = hex[val & 0x0f];
-    }
-    return hashstr;
+    return sha1_bytes_to_hex_str(md);
 }

@@ -2,6 +2,7 @@
 #define GIT_CORE_H_
 
 #include <sys/stat.h>
+#include <stdlib.h>
 
 const int OBJ_COMMIT_NUM=1;
 const int OBJ_TREE_NUM=2;
@@ -20,9 +21,6 @@ const char *OBJ_TYPES[] = { NULL, OBJ_COMMIT_STR, OBJ_TREE_STR, OBJ_BLOB_STR, OB
 const int DIR_MODE = S_IRWXU | S_IRWXG;
 
 const char *PARENT_DIR = "..";
-
-const int SHA1_NUM_BYTES = 20;
-const int SHA1_HEX_LEN = 2*SHA1_NUM_BYTES;
 
 const char *GIT_HOME = ".git";
 const char *GIT_HEAD = ".git/HEAD";
@@ -44,9 +42,6 @@ struct tree_obj_entry {
     char path[256];
 };
 void parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry);
-
-int def(FILE *source, FILE *dest);
-int inf(FILE *source, FILE *dest);
 
 char *sha1_hex_str_to_filename(char *sha1);
 void write_file_to_object_db(FILE* f);

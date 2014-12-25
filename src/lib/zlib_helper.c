@@ -1,3 +1,5 @@
+#include "zlib_helper.h"
+
 /* Copied from http://www.zlib.net/zlib_how.html */
 
 /* zpipe.c: example of proper use of zlib's inflate() and deflate()
