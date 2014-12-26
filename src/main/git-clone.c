@@ -181,9 +181,9 @@ int main(int argc, char *argv[]) {
     int fd = connect_to_host(host, port);
     send_proto_request(fd, host, repo);
     struct ref_spec* rs = read_ref_advertisement(fd);
-    send_flush_pkt(fd);
-//    send_negotiation_request(fd, rs);
-//    read_pack_file(fd, packfile);
+//    send_flush_pkt(fd);
+    send_negotiation_request(fd, rs);
+    read_pack_file(fd, packfile);
     close(fd);
 
     //we have got the pack file and ref spec

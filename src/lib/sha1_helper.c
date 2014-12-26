@@ -22,7 +22,7 @@ char *sha1_bytes_to_hex_str(unsigned char *bytes) {
     return buffer;
 }
 
-char* calc_sha1(FILE *f) {
+unsigned char* calc_sha1(FILE *f) {
     static unsigned char md[SHA1_NUM_BYTES];
     memset(md, 0, SHA1_NUM_BYTES);
 
@@ -33,6 +33,5 @@ char* calc_sha1(FILE *f) {
         SHA1_Update(&context, buffer, len);
     }
     SHA1_Final(md, &context);
-
-    return sha1_bytes_to_hex_str(md);
+    return md;
 }

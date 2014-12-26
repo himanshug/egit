@@ -11,7 +11,7 @@
 static char buffer[65536];
 
 void write_to_object_db(FILE* f) {
-    char *hash = calc_sha1(f);
+    char *hash = sha1_bytes_to_hex_str(calc_sha1(f));
     sprintf(buffer, ".git/objects/%.*s", 2, hash);
     create_dir_if_not_exists(buffer);
 

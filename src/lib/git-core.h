@@ -45,10 +45,33 @@ void parse_commit_obj(FILE* f, struct commit_obj* obj);
 
 struct tree_obj_entry {
     char mode[TREE_ENTRY_MODE_LEN];
-    char sha1[SHA1_HEX_LEN];
+    unsigned char sha1_bytes[SHA1_NUM_BYTES];
     char path[256];
 };
 int parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry);
+
+//This code supports version 2 of the index format.
+struct index_entry {
+    uint32_t ctime;
+    uint32_t ctime_ns;
+    uint32_t mtime;
+    uint32_t mtime_ns;
+    uint32_t dev;
+    uint32_t ino;
+    uint32_t mode;
+    uint32_t uid;
+    uint32_t gid;
+    uint32_t fsize;
+    unsigned char sha1[SHA1_NUM_BYTES];
+    uint16_t flag;
+    char *path;
+    struct index_entry* next;
+};
+struct index_entry* init_index_entry(char *filename, char *sha1_bytes);
+void free_index_entry(struct index_entry* e);
+int compare_index_entry(struct index_entry** e1, struct index_entry** e2);
+void write_index(FILE* f, struct index_entry* arr[], size_t narr);
+
 
 char *sha1_hex_str_to_filename(char *sha1);
 void write_file_to_object_db(FILE* f);
