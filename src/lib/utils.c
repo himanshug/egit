@@ -60,8 +60,8 @@ int fread_till(const FILE* f, const void *buff, const char end) {
     unsigned char ch;
     int i;
     for(i = 0; ; i++) {
-        fread(&ch, 1, 1, f);
-        check_die(ch != EOF, 1, "premature end of file");
+        int len = fread(&ch, 1, 1, f);
+        check_die(len != 0, 1, "premature end of file");
         if(ch == end) break;
         memcpy(buff+i, &ch, 1);
     }
