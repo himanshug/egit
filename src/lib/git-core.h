@@ -48,7 +48,7 @@ struct tree_obj_entry {
     char sha1[SHA1_HEX_LEN];
     char path[256];
 };
-void parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry);
+int parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry);
 
 char *sha1_hex_str_to_filename(char *sha1);
 void write_file_to_object_db(FILE* f);

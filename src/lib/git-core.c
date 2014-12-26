@@ -27,13 +27,17 @@ void parse_commit_obj(FILE* f, struct commit_obj* obj) {
     fread_n(f, obj->tree_sha1, SHA1_HEX_LEN);
 }
 
-void parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry) {
-    fread_till(f, entry->mode, ' ');
+int parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry) {
+    if(fread(entry->mode, 1, 1, f) <= 0 || entry->mode[0] == '\n')
+        return -1;
+
+    fread_till(f, entry->mode+1, ' ');
     int n = fread_till(f, entry->path, '\0');
     entry->path[n] = '\0';
 
     fread_n(f, buffer, SHA1_NUM_BYTES);
     memcpy(entry->sha1, sha1_bytes_to_hex_str(buffer), SHA1_HEX_LEN);
+    return 0;
 }
 
 char *sha1_hex_str_to_filename(char *sha1) {
