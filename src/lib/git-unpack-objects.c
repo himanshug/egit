@@ -10,22 +10,6 @@
 
 static char buffer[65536];
 
-void write_to_object_db(FILE* f) {
-    char *hash = sha1_bytes_to_hex_str(calc_sha1(f));
-    sprintf(buffer, ".git/objects/%.*s", 2, hash);
-    create_dir_if_not_exists(buffer);
-
-    sprintf(buffer, ".git/objects/%.*s/%.*s", 2, hash, 38, hash+2);
-    FILE* encodedObj = fopen(buffer, "w+b");
-    check_die(encodedObj != NULL, 1, "failed to create file %s", buffer);
-
-    fseek(f, 0, SEEK_SET);
-    def(f, encodedObj);
-
-    fflush(encodedObj);
-    fclose(encodedObj);
-}
-
 void parse_pack_file(char *path) {
     debug("parsing packfile %s", path);
 
@@ -83,7 +67,7 @@ void parse_pack_file(char *path) {
         inf(pf, dest); //read and inflate object content from pack file to dest stream
 
         fseek(dest, 0, SEEK_SET); //set read ptr to start of stream
-        write_to_object_db(dest);
+        write_file_to_object_db(dest);
         fclose(dest);
     }
 }

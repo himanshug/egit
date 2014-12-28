@@ -150,7 +150,19 @@ char *sha1_hex_str_to_filename(char *sha1) {
 }
 
 void write_file_to_object_db(FILE* f) {
-    check_die(0, 1, "TO BE IMPLEMENTED");
+    char *hash = sha1_bytes_to_hex_str(calc_sha1(f));
+    sprintf(buffer, ".git/objects/%.*s", 2, hash);
+    create_dir_if_not_exists(buffer);
+
+    sprintf(buffer, ".git/objects/%.*s/%.*s", 2, hash, 38, hash+2);
+    FILE* deflated_f = fopen(buffer, "w+b");
+    check_die(deflated_f != NULL, 1, "failed to create file %s", buffer);
+
+    fseek(f, 0, SEEK_SET);
+    def(f, deflated_f);
+
+    fflush(deflated_f);
+    fclose(deflated_f);
 }
 
 
