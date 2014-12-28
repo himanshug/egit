@@ -50,6 +50,9 @@ struct tree_obj_entry {
 };
 int parse_tree_obj_entry(FILE* f, struct tree_obj_entry* entry);
 
+//unpack_objects assumes current working dir = repo-dir
+void unpack_objects(char *packfile);
+
 //This code supports version 2 of the index format.
 struct index_entry {
     uint32_t ctime;

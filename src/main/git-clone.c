@@ -11,7 +11,6 @@
 #include "dbg.h"
 #include "utils.h"
 
-#include "git-unpack-objects.h"
 #include "git-init-db.h"
 #include "git-core.h"
 
@@ -191,7 +190,7 @@ int main(int argc, char *argv[]) {
     init_db(repo);
     check_die(chdir(repo) == 0, 1, "failed to switch to newly created repo directory");
 
-    parse_pack_file(packfile);
+    unpack_objects(packfile);
     create_refs(rs);
     //TODO : free the ref-spec at this time
     check_out();
