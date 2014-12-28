@@ -96,8 +96,8 @@ char* get_commit_from_ref(char *ref) {
     }
 }
 
-void check_out() {
-    char *sha1 = get_commit_from_ref(".git/HEAD");
+void check_out(char *ref) {
+    char *sha1 = get_commit_from_ref(ref);
     check_out_commit(sha1);
 
     struct index_entry* entries[num_index_entries];

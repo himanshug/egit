@@ -73,13 +73,12 @@ struct index_entry {
 struct index_entry* init_index_entry(char *filename, char *sha1_bytes);
 void free_index_entry(struct index_entry* e);
 int compare_index_entry(struct index_entry** e1, struct index_entry** e2);
+//write_index assumes current working dir = repo-dir
 void write_index(FILE* f, struct index_entry* arr[], size_t narr);
 
 
 char *sha1_hex_str_to_filename(char *sha1);
 void write_file_to_object_db(FILE* f);
 FILE* open_file_from_object_db(char *sha1); //this returns the inflated stream
-
-void check_out();
 
 #endif /* GIT_CORE_H_ */

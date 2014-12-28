@@ -193,5 +193,5 @@ int main(int argc, char *argv[]) {
     unpack_objects(packfile);
     create_refs(rs);
     //TODO : free the ref-spec at this time
-    check_out();
+    check_out(".git/HEAD");
 }
