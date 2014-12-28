@@ -4,7 +4,7 @@
 
 void* test_calc_sha1() {
     FILE* f = fopen("res/test/do_not_modify", "rb");
-    char *sha1 = calc_sha1(f);
+    char *sha1 = sha1_bytes_to_hex_str(calc_sha1(f));
     mu_assert(memcmp(sha1, "6c7752f24e468ac8d605f1dce2fd41acc7ae91ec", SHA1_HEX_LEN) == 0,
             "sha1 dint match");
 }
