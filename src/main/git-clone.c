@@ -170,25 +170,76 @@ void create_refs(struct ref_spec *refs) {
     } while((curr = curr->next) != NULL);
 }
 
+void print_usage() {
+    fprintf(stderr," USAGE:git-clone <repository-url, git://.. or user@..\n");
+    exit(1);
+}
+
+
+struct repo_url {
+    int scheme; //0 = git, 1 = ssh
+    char *hostname;
+    int port;
+    char *repo_path;
+};
+
+//supports cloning using git protocol, so url should be like
+//git://<host>[:<port>]/<repo>
+//and maybe later will support ssh, so url should be like
+//<user>@<host>:<repo>
+void parse_repo_url(char *url, struct repo_url* repo) {
+    if(starts_with(url, "git://")) {
+        url += 6; //6 = strlen(git://)
+        repo->scheme = 0;
+
+        char ch;
+        int i = 0;
+        while((ch = *url++) != ':' && ch != '/') {
+            buffer[i++] = ch;
+        }
+        buffer[i++] = '\0';
+        repo->hostname = strdup(buffer);
+
+        i = 0;
+        if(ch == ':') {
+            while((ch = *url++) != '/') {
+                buffer[i++] = ch;
+            }
+            buffer[i++] = '\0';
+            repo->port = atoi(buffer);
+        } else {
+            repo->port = 9418;
+        }
+
+        repo->repo_path = strdup(url);
+    } else {
+        fprintf(stderr, "only git://.. url is supported\n");
+        exit(1);
+    }
+}
+
 int main(int argc, char *argv[]) {
-    char *host = "localhost";
-    int port = 9418;
-    char *repo = "testrepo";
 
-    char *packfile = "/tmp/packfile";
+    if(argc < 2)
+        print_usage();
 
-    int fd = connect_to_host(host, port);
-    send_proto_request(fd, host, repo);
+    char *url = argv[1];
+    struct repo_url repo;
+    parse_repo_url(argv[1], &repo);
+
+    int fd = connect_to_host(repo.hostname, repo.port);
+    send_proto_request(fd, repo.hostname, repo.repo_path);
     struct ref_spec* rs = read_ref_advertisement(fd);
 //    send_flush_pkt(fd);
     send_negotiation_request(fd, rs);
+    char *packfile = tmpnam(NULL);
     read_pack_file(fd, packfile);
     close(fd);
 
     //we have got the pack file and ref spec
-    check_die(mkdir(repo, S_IRWXU | S_IRWXG) >= 0, 1, "failed to create dir [%s]\n", repo);
-    init_db(repo);
-    check_die(chdir(repo) == 0, 1, "failed to switch to newly created repo directory");
+    check_die(mkdir(repo.repo_path, S_IRWXU | S_IRWXG) >= 0, 1, "failed to create dir [%s]\n", repo.repo_path);
+    init_db(repo.repo_path);
+    check_die(chdir(repo.repo_path) == 0, 1, "failed to switch to newly created repo directory");
 
     unpack_objects(packfile);
     create_refs(rs);
