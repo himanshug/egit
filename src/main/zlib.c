@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include "constants.h"
-
 void print_help() {
     fprintf(stderr, "Usage: zlib <inflate/deflate> </path/to/file>");
 }
